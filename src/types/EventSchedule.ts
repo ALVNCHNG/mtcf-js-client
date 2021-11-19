@@ -15,5 +15,5 @@ export type EventSchedule = {
 export type EventScheduleSortableFields = 'schedule' | 'created_at';
 
 export type EventScheduleRequestBody = {
-  schedule: Date;
+  schedule: string;
 };

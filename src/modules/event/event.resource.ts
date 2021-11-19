@@ -8,6 +8,7 @@ import {
   Event,
   EventRequestBody,
   EventSchedule,
+  EventScheduleRequestBody,
   EventScheduleSortableFields,
   EventSortableFields,
   FetchEntityResponse,
@@ -170,6 +171,27 @@ class EventResource {
       const { data } = responseData;
 
       return { data: new EventEntity(data._id, data) };
+    } catch (error: any) {
+      return handleResourceError(error);
+    }
+  };
+
+  createSchedule = async (
+    event: EventEntity,
+    formData: EventScheduleRequestBody
+  ) => {
+    try {
+      const { data: responseData } = await this.client.post<
+        ServerResponseWithEntity<EventSchedule>
+      >(`/${event.getId()}/schedules`, formData);
+
+      if (!responseData.data) {
+        return { data: null };
+      }
+
+      const { data } = responseData;
+
+      return { data: new EventScheduleEntity(data._id, data) };
     } catch (error: any) {
       return handleResourceError(error);
     }

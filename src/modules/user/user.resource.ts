@@ -87,7 +87,7 @@ class UserResource {
         return { data: null };
       }
 
-      return { data: new UserEntity(data._id || '', data) };
+      return { data: new UserEntity(data.user_id || '', data) };
     } catch (error: any) {
       return handleResourceError(error);
     }
@@ -103,7 +103,7 @@ class UserResource {
         return { data: null };
       }
 
-      return { data: new UserEntity(data._id || '', data) };
+      return { data: new UserEntity(data.user_id || '', data) };
     } catch (error: any) {
       return handleResourceError(error);
     }
@@ -123,7 +123,7 @@ class UserResource {
         return { data: null };
       }
 
-      return { data: new UserEntity(data._id || '', data) };
+      return { data: new UserEntity(data.user_id || '', data) };
     } catch (error: any) {
       return handleResourceError(error);
     }

@@ -1,4 +1,4 @@
-import { AppMetadata, User as Auth0User } from 'auth0';
+import { AppMetadata } from 'auth0';
 
 import { EventSchedule } from './EventSchedule';
 
@@ -11,8 +11,6 @@ export interface UserMetadata {
   attendedEvents: EventSchedule[];
   interestedEvents: EventSchedule[];
 }
-
-// export type User = Auth0User;
 
 export type User = {
   created_at: string;
