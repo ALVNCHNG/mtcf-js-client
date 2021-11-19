@@ -1,11 +1,9 @@
-import { User, UserMetadata } from 'auth0';
-
-import { Entity } from '../../types';
+import { Entity, User, UserMetadata } from '../../types';
 
 class UserEntity extends Entity<User> {
-  id = '';
+  id;
 
-  attributes: User = {};
+  attributes: User;
 
   constructor(id: string, attributes: User) {
     super();

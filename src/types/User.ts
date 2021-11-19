@@ -1,14 +1,10 @@
-import {
-  AppMetadata,
-  User as Auth0User,
-  UserMetadata as Auth0UserMetadata,
-} from 'auth0';
+import { AppMetadata, User as Auth0User } from 'auth0';
 
 import { EventSchedule } from './EventSchedule';
 
 export type UserAppMetadata = AppMetadata;
 
-export interface UserMetadata extends Auth0UserMetadata {
+export interface UserMetadata {
   address: string;
   birthDate: Date;
   phoneNumber: string;
@@ -16,7 +12,21 @@ export interface UserMetadata extends Auth0UserMetadata {
   interestedEvents: EventSchedule[];
 }
 
-export type User = Auth0User;
+// export type User = Auth0User;
+
+export type User = {
+  created_at: string;
+  email: string;
+  email_verified: boolean;
+  family_name: string;
+  given_name: string;
+  name: string;
+  nickname: string;
+  picture: string;
+  updated_at: string;
+  user_id: string;
+  user_metadata: UserMetadata;
+};
 
 export interface UserRequestBody {
   email: string;
@@ -24,7 +34,7 @@ export interface UserRequestBody {
   firstName: string;
   lastName: string;
   phoneNumber: string;
-  birthDate: Date;
+  birthDate: string;
   address: string;
 }
 
@@ -35,7 +45,6 @@ export type UserSortableEntityFields = keyof Pick<
   | 'given_name'
   | 'name'
   | 'nickname'
-  | 'phone_number'
   | 'created_at'
   | 'updated_at'
 >;
