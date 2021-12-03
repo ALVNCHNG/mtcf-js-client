@@ -1,11 +1,15 @@
-import { Entity, User, UserMetadata } from '../../types';
+import { Entity, UserResponse, UserResponseMinimal } from '../../types';
 
-class UserEntity extends Entity<User> {
+class UserEntity<
+  TEntity extends UserResponse | UserResponseMinimal =
+    | UserResponse
+    | UserResponseMinimal
+> extends Entity<TEntity> {
   id;
 
-  attributes: User;
+  attributes: TEntity;
 
-  constructor(id: string, attributes: User) {
+  constructor(id: string, attributes: TEntity) {
     super();
 
     this.id = id;
@@ -19,23 +23,15 @@ class UserEntity extends Entity<User> {
     return this;
   }
 
-  getAttribute = <T extends keyof User>(key: T): User[T] => {
+  getAttribute = <T extends keyof TEntity>(key: T): TEntity[T] => {
     return this.attributes[key];
   };
 
-  getAttributes = (): User => this.attributes;
+  getAttributes = (): TEntity => this.attributes;
 
-  setAttribute = <T extends keyof User>(key: T, value: User[T]): this => {
+  setAttribute = <T extends keyof TEntity>(key: T, value: TEntity[T]): this => {
     this.attributes[key] = value;
     return this;
-  };
-
-  getAttendedEvents = (): UserMetadata['attendedEvents'] => {
-    return this.attributes.user_metadata?.attendedEvents || [];
-  };
-
-  getInterestedEvents = (): UserMetadata['interestedEvents'] => {
-    return this.attributes.user_metadata?.interestedEvents || [];
   };
 }
 

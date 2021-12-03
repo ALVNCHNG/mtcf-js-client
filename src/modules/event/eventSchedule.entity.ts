@@ -1,11 +1,19 @@
-import { Entity, EventSchedule } from '../../types';
+import {
+  Entity,
+  EventScheduleResponse,
+  EventScheduleResponseMinimal,
+} from '../../types';
 
-class EventSchedulesEntity extends Entity<EventSchedule> {
+class EventScheduleEntity<
+  TEntity extends EventScheduleResponse | EventScheduleResponseMinimal =
+    | EventScheduleResponse
+    | EventScheduleResponseMinimal
+> extends Entity<TEntity> {
   id: string;
 
-  attributes: EventSchedule;
+  attributes: TEntity;
 
-  constructor(id: string, attributes: EventSchedule) {
+  constructor(id: string, attributes: TEntity) {
     super();
 
     this.id = id;
@@ -14,24 +22,21 @@ class EventSchedulesEntity extends Entity<EventSchedule> {
 
   getId = (): string => this.id;
 
-  setId(id: string): this {
+  setId = (id: string): this => {
     this.id = id;
     return this;
-  }
+  };
 
-  getAttribute = <T extends keyof EventSchedule>(key: T): EventSchedule[T] => {
+  getAttribute = <T extends keyof TEntity>(key: T): TEntity[T] => {
     return this.attributes[key];
   };
 
-  getAttributes = (): EventSchedule => this.attributes;
+  getAttributes = (): TEntity => this.attributes;
 
-  setAttribute = <T extends keyof EventSchedule>(
-    key: T,
-    value: EventSchedule[T]
-  ): this => {
+  setAttribute = <T extends keyof TEntity>(key: T, value: TEntity[T]): this => {
     this.attributes[key] = value;
     return this;
   };
 }
 
-export default EventSchedulesEntity;
+export default EventScheduleEntity;

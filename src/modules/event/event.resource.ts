@@ -1,23 +1,26 @@
 import axios, { AxiosInstance } from 'axios';
-import { Types } from 'mongoose';
 
-import { API_VERSION, DOMAIN, PORT, RESOURCES } from '../../config';
 import {
-  Entity,
   ErrorResponse,
-  Event,
   EventRequestBody,
-  EventSchedule,
+  EventResponse,
+  EventResponseMinimal,
   EventScheduleRequestBody,
+  EventScheduleResponse,
+  EventScheduleResponseMinimal,
   EventScheduleSortableFields,
   EventSortableFields,
   FetchEntityResponse,
+  handleResourceError,
   ListFilterOptions,
   ListResponse,
   ListResponseMetadata,
   ServerResponseWithEntity,
-} from '../../types';
-import { handleResourceError } from '../../utils';
+  UserEntity,
+  UserResponse,
+  UserSortableEntityFields,
+} from '../..';
+import { API_VERSION, DOMAIN, PORT, RESOURCES } from '../../config';
 
 import EventEntity from './event.entity';
 import EventScheduleEntity from './eventSchedule.entity';
@@ -45,23 +48,23 @@ class EventResource {
       order: -1,
       limit: 10,
       offset: 0,
-      sort: 'created_at',
+      sort: 'createdAt',
     }
   ): Promise<
     | ErrorResponse
     | {
-        data: EventEntity[];
-        raw: Event[];
+        data: EventEntity<EventResponseMinimal>[];
+        raw: EventResponseMinimal[];
         metadata: ListResponseMetadata;
       }
   > => {
     try {
-      let events: EventEntity[] = [];
+      let events: EventEntity<EventResponseMinimal>[] = [];
       const { order, limit, offset, sort } = options;
 
       const {
         data: { data, metadata },
-      } = await this.client.get<ListResponse<Event>>(`/`, {
+      } = await this.client.get<ListResponse<EventResponseMinimal>>(``, {
         params: {
           limit,
           offset,
@@ -71,13 +74,7 @@ class EventResource {
       });
 
       if (data.length > 0) {
-        events = data.map(
-          (event, eventIndex) =>
-            new EventEntity(
-              new Types.ObjectId(event._id).toString() || eventIndex.toString(),
-              event
-            )
-        );
+        events = data.map((event) => new EventEntity(event.id, event));
       }
 
       return {
@@ -92,17 +89,103 @@ class EventResource {
 
   getById = async (
     id: string
-  ): Promise<ErrorResponse | { data: Entity<Event> | null }> => {
+  ): Promise<ErrorResponse | { data: EventEntity<EventResponse> | null }> => {
     try {
       const {
         data: { data },
-      } = await this.client.get<FetchEntityResponse<Event>>(`${id}`, {});
+      } = await this.client.get<FetchEntityResponse<EventResponse>>(`${id}`);
 
       if (!data) {
         return { data: null };
       }
 
-      return { data: new EventEntity(data._id || '', data) };
+      return { data: new EventEntity(data.id, data) };
+    } catch (error: any) {
+      return handleResourceError(error);
+    }
+  };
+
+  create = async (
+    formData: EventRequestBody
+  ): Promise<ErrorResponse | { data: EventEntity<EventResponse> | null }> => {
+    try {
+      const {
+        data: { data },
+      } = await this.client.post<ServerResponseWithEntity<EventResponse>>(
+        '',
+        formData
+      );
+
+      if (!data) {
+        return { data: null };
+      }
+
+      return { data: new EventEntity<EventResponse>(data.id, data) };
+    } catch (error: any) {
+      return handleResourceError(error);
+    }
+  };
+
+  update = async (
+    event: EventEntity<EventResponse | EventResponseMinimal>,
+    formData: EventRequestBody
+  ): Promise<ErrorResponse | { data: EventEntity<EventResponse> | null }> => {
+    try {
+      const {
+        data: { data },
+      } = await this.client.put<ServerResponseWithEntity<EventResponse>>(
+        `${event.getAttribute('id')}`,
+        formData
+      );
+
+      if (!data) {
+        return { data: null };
+      }
+
+      console.log('Id: ', data.id);
+
+      return { data: new EventEntity<EventResponse>(data.id, data) };
+    } catch (error: any) {
+      return handleResourceError(error);
+    }
+  };
+
+  delete = async (
+    entity: EventEntity<EventResponse | EventResponseMinimal>
+  ): Promise<ErrorResponse | { data: EventEntity<EventResponse> | null }> => {
+    try {
+      const { data: responseData } = await this.client.delete<
+        ServerResponseWithEntity<EventResponse>
+      >(`${entity.getId()}`);
+
+      if (!responseData.data) {
+        return { data: null };
+      }
+
+      const { data } = responseData;
+
+      return { data: new EventEntity<EventResponse>(data.id, data) };
+    } catch (error: any) {
+      return handleResourceError(error);
+    }
+  };
+
+  createSchedule = async (
+    event: EventEntity,
+    formData: EventScheduleRequestBody
+  ) => {
+    try {
+      const { data: responseData } = await this.client.post<
+        ServerResponseWithEntity<EventScheduleResponse>
+      >(`/${event.getId()}/schedules`, formData);
+
+      if (!responseData.data) {
+        return { data: null };
+      }
+
+      const { data } = responseData;
+
+      return { data: new EventScheduleEntity(data.id, data) };
     } catch (error: any) {
       return handleResourceError(error);
     }
@@ -114,16 +197,17 @@ class EventResource {
       order: -1,
       limit: 10,
       offset: 0,
-      sort: 'created_at',
+      sort: 'createdAt',
     }
   ) => {
     try {
-      let eventSchedules: EventScheduleEntity[] = [];
+      let eventSchedules: EventScheduleEntity<EventScheduleResponseMinimal>[] =
+        [];
       const { order, limit, offset, sort } = options;
 
       const {
         data: { data, metadata },
-      } = await this.client.get<ListResponse<EventSchedule>>(
+      } = await this.client.get<ListResponse<EventScheduleResponseMinimal>>(
         `/${event.id}/${RESOURCES.eventSchedules}/`,
         {
           params: {
@@ -137,12 +221,8 @@ class EventResource {
 
       if (data.length > 0) {
         eventSchedules = data.map(
-          (eventSchedule, eventScheduleIndex) =>
-            new EventScheduleEntity(
-              new Types.ObjectId(eventSchedule._id).toString() ||
-                eventScheduleIndex.toString(),
-              eventSchedule
-            )
+          (eventSchedule) =>
+            new EventScheduleEntity(eventSchedule.id, eventSchedule)
         );
       }
 
@@ -156,91 +236,114 @@ class EventResource {
     }
   };
 
-  create = async (
-    formData: EventRequestBody
-  ): Promise<ErrorResponse | { data: Entity<Event> | null }> => {
+  deleteSchedule = async (schedule: EventScheduleEntity) => {
+    const { getAttribute, getId } = schedule;
     try {
-      const { data: responseData } = await this.client.post<
-        ServerResponseWithEntity<Event>
-      >('/', formData);
+      const {
+        data: { data },
+      } = await this.client.delete<
+        ServerResponseWithEntity<EventScheduleResponse>
+      >(`/${getAttribute('event')}/${RESOURCES.eventSchedules}/${getId()}`);
 
-      if (!responseData.data) {
+      if (!data) {
         return { data: null };
       }
 
-      const { data } = responseData;
-
-      return { data: new EventEntity(data._id, data) };
+      return {
+        data: new EventScheduleEntity<EventScheduleResponse>(data.id, data),
+      };
     } catch (error: any) {
       return handleResourceError(error);
     }
   };
 
-  createSchedule = async (
-    event: EventEntity,
-    formData: EventScheduleRequestBody
+  getAttendees = async (
+    entities: { event: EventEntity; eventSchedule: EventScheduleEntity },
+    options: ListFilterOptions<UserSortableEntityFields> = {
+      order: -1,
+      limit: 10,
+      offset: 0,
+      sort: 'createdAt',
+    }
   ) => {
-    try {
-      const { data: responseData } = await this.client.post<
-        ServerResponseWithEntity<EventSchedule>
-      >(`/${event.getId()}/schedules`, formData);
+    let users: UserEntity<UserResponse>[] = [];
+    const { event, eventSchedule } = entities;
+    const { order, limit, offset, sort } = options;
 
-      if (!responseData.data) {
-        return { data: null };
+    try {
+      const {
+        data: { data, metadata },
+      } = await this.client.get<ListResponse<UserResponse>>(
+        `/${event.getId()}/${
+          RESOURCES.eventSchedules
+        }/${eventSchedule.getId()}/attendees`,
+        {
+          params: {
+            limit,
+            offset,
+            sort,
+            order,
+          } as ListFilterOptions<UserSortableEntityFields>,
+        }
+      );
+
+      if (data.length > 0) {
+        users = data.map((user) => new UserEntity(user.id, user));
       }
 
-      const { data } = responseData;
-
-      return { data: new EventScheduleEntity(data._id, data) };
+      return {
+        data: users,
+        raw: data,
+        metadata,
+      };
     } catch (error: any) {
       return handleResourceError(error);
     }
   };
 
-  update = async (
-    event: EventEntity,
-    formData: EventRequestBody
-  ): Promise<ErrorResponse | { data: EventEntity | null }> => {
-    try {
-      const { data: responseData } = await this.client.put<
-        ServerResponseWithEntity<Event>
-      >(`${event.getId()}`, formData);
+  getInterestedUsers = async (
+    entities: { event: EventEntity; eventSchedule: EventScheduleEntity },
+    options: ListFilterOptions<UserSortableEntityFields> = {
+      order: -1,
+      limit: 10,
+      offset: 0,
+      sort: 'createdAt',
+    }
+  ) => {
+    let users: UserEntity<UserResponse>[] = [];
+    const { event, eventSchedule } = entities;
+    const { order, limit, offset, sort } = options;
 
-      if (!responseData.data) {
-        return { data: null };
+    try {
+      const {
+        data: { data, metadata },
+      } = await this.client.get<ListResponse<UserResponse>>(
+        `/${event.getId()}/${
+          RESOURCES.eventSchedules
+        }/${eventSchedule.getId()}/interested`,
+        {
+          params: {
+            limit,
+            offset,
+            sort,
+            order,
+          } as ListFilterOptions<UserSortableEntityFields>,
+        }
+      );
+
+      if (data.length > 0) {
+        users = data.map((user) => new UserEntity(user.id, user));
       }
 
-      const { data } = responseData;
-
-      return { data: new EventEntity(data._id, data) };
+      return {
+        data: users,
+        raw: data,
+        metadata,
+      };
     } catch (error: any) {
       return handleResourceError(error);
     }
   };
-
-  delete = async (
-    entity: Entity<Event>
-  ): Promise<ErrorResponse | { data: Entity<Event> | null }> => {
-    try {
-      const { data: responseData } = await this.client.delete<
-        ServerResponseWithEntity<Event>
-      >(`${entity.getId()}`);
-
-      if (!responseData.data) {
-        return { data: null };
-      }
-
-      const { data } = responseData;
-
-      return { data: new EventEntity(data._id, data) };
-    } catch (error: any) {
-      return handleResourceError(error);
-    }
-  };
-
-  // delete = async (entity: Entity<Event>): Promise<Entity<Event> | null> => {
-
-  // };
 }
 
 export default EventResource;

@@ -1,9 +1,13 @@
-import { Entity, EventResponse, EventResponseMinimal } from '../../types';
+import {
+  Entity,
+  EventScheduleResponse,
+  EventScheduleResponseMinimal,
+} from '../../types';
 
-class EventEntity<
-  TEntity extends EventResponse | EventResponseMinimal =
-    | EventResponse
-    | EventResponseMinimal
+class ScheduleEntity<
+  TEntity extends EventScheduleResponse | EventScheduleResponseMinimal =
+    | EventScheduleResponse
+    | EventScheduleResponseMinimal
 > extends Entity<TEntity> {
   id: string;
 
@@ -12,15 +16,11 @@ class EventEntity<
   constructor(id: string, attributes: TEntity) {
     super();
 
-    console.log('Generated Event Id: ', id);
     this.id = id;
     this.attributes = attributes;
   }
 
-  getId = (): string => {
-    console.log('Event Id: ', this.id);
-    return this.id;
-  };
+  getId = (): string => this.id;
 
   setId = (id: string): this => {
     this.id = id;
@@ -37,10 +37,6 @@ class EventEntity<
     this.attributes[key] = value;
     return this;
   };
-
-  getSchedules = (): TEntity['schedules'] => {
-    return this.attributes.schedules;
-  };
 }
 
-export default EventEntity;
+export default ScheduleEntity;
