@@ -4,6 +4,7 @@ export * from './event/event.utils';
 export { default as EventResource } from './event/event.resource';
 
 export { default as ScheduleEntity } from './schedule/schedule.entity';
+export { default as ScheduleResource } from './schedule/schedule.resource';
 export * from './schedule/schedule.utils';
 
 export { default as UserEntity } from './user/user.entity';

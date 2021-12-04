@@ -5,7 +5,10 @@
   "main": "build/main/index.js",
   "typings": "build/main/index.d.ts",
   "module": "build/module/index.js",
-  "repository": "https://github.com/YOUR_GITHUB_USER_NAME/mtcf-js-client",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/alvnchng/mtcf-js-client.git"
+  },
   "license": "MIT",
   "keywords": [],
   "scripts": {
@@ -105,5 +108,10 @@
     "exclude": [
       "**/*.spec.js"
     ]
-  }
+  },
+  "bugs": {
+    "url": "https://github.com/alvnchng/mtcf-js-client/issues"
+  },
+  "homepage": "https://github.com/alvnchng/mtcf-js-client#readme",
+  "author": "Alvin Viernes Ching"
 }
