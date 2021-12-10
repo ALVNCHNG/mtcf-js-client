@@ -13,7 +13,7 @@ import { API_VERSION, DOMAIN, PORT, RESOURCES } from '../../config';
 import EventScheduleEntity from '../event/eventSchedule.entity';
 
 class EventResource {
-  private url = `${DOMAIN}:${PORT}/api/${API_VERSION}/${RESOURCES.eventSchedules}`;
+  private url = `${DOMAIN}:${PORT}/api/${API_VERSION}/${RESOURCES.schedules}`;
 
   client: AxiosInstance = axios.create();
 

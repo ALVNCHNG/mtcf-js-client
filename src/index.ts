@@ -1,4 +1,10 @@
-import { EventResource, ScheduleResource, UserResource } from './modules';
+import {
+  EventResource,
+  PlatformResource,
+  SchedulePlatformResource,
+  ScheduleResource,
+  UserResource,
+} from './modules';
 
 export * from './types';
 export * from './modules';
@@ -7,7 +13,9 @@ export * from './errors';
 
 const resources = {
   event: new EventResource(),
+  platform: new PlatformResource(),
   schedule: new ScheduleResource(),
+  schedulePlatform: new SchedulePlatformResource(),
   user: new UserResource(),
 };
 

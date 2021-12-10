@@ -208,7 +208,7 @@ class EventResource {
       const {
         data: { data, metadata },
       } = await this.client.get<ListResponse<EventScheduleResponseMinimal>>(
-        `/${event.id}/${RESOURCES.eventSchedules}/`,
+        `/${event.id}/${RESOURCES.schedules}/`,
         {
           params: {
             limit,
@@ -243,7 +243,7 @@ class EventResource {
         data: { data },
       } = await this.client.delete<
         ServerResponseWithEntity<EventScheduleResponse>
-      >(`/${getAttribute('event')}/${RESOURCES.eventSchedules}/${getId()}`);
+      >(`/${getAttribute('event')}/${RESOURCES.schedules}/${getId()}`);
 
       if (!data) {
         return { data: null };
@@ -275,7 +275,7 @@ class EventResource {
         data: { data, metadata },
       } = await this.client.get<ListResponse<UserResponse>>(
         `/${event.getId()}/${
-          RESOURCES.eventSchedules
+          RESOURCES.schedules
         }/${eventSchedule.getId()}/attendees`,
         {
           params: {
@@ -319,7 +319,7 @@ class EventResource {
         data: { data, metadata },
       } = await this.client.get<ListResponse<UserResponse>>(
         `/${event.getId()}/${
-          RESOURCES.eventSchedules
+          RESOURCES.schedules
         }/${eventSchedule.getId()}/interested`,
         {
           params: {

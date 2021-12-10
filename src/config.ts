@@ -4,6 +4,7 @@ export const PORT = 4000;
 
 export const RESOURCES = {
   events: 'events',
-  eventSchedules: 'schedules',
+  schedules: 'schedules',
+  platforms: 'platforms',
   users: 'users',
 };
